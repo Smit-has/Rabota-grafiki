@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Рабочий график</string>
+    <string name="add_shift">Добавить смену</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+    <string name="set_alarm">Поставить будильник</string>
+    <string name="cancel_alarm">Отменить будильник</string>
+    <string name="no_shifts">Нет смен. Нажмите +, чтобы добавить</string>
+    <string name="shift_time">Время смены</string>
+    <string name="alarm_before">Будильник за (минут)</string>
+    <string name="note">Заметка</string>
+    <string name="work_day">Рабочий день</string>
+    <string name="day_off">Выходной</string>
+    <string name="alarm_set">Будильник установлен</string>
+    <string name="alarm_cancelled">Будильник отменён</string>
+    <string name="permission_needed">Нужно разрешение на точные будильники</string>
+    <string name="notification_channel_name">Будильники смен</string>
+    <string name="notification_channel_desc">Уведомления о начале рабочей смены</string>
+    <string name="alarm_title">Пора на работу!</string>
+    <string name="alarm_text">Смена начинается в %1$s</string>
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="select_date">Выберите дату</string>
+    <string name="select_time">Выберите время</string>
+    <string name="minutes_before_hint">Например: 30</string>
+</resources>
