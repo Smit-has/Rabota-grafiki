@@ -25,17 +25,17 @@ class AlarmService : Service() {
         val note = intent?.getStringExtra(AlarmHelper.EXTRA_SHIFT_NOTE) ?: ""
         val time = intent?.getStringExtra(AlarmHelper.EXTRA_SHIFT_TIME) ?: ""
 
-        val openApp = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val openApp = Intent(this, MainActivity::class.java)
+        openApp.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+
         val pendingOpen = PendingIntent.getActivity(
             this, 0, openApp,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val dismissIntent = Intent(this, AlarmService::class.java).apply {
-            action = "DISMISS"
-        }
+        val dismissIntent = Intent(this, AlarmService::class.java)
+        dismissIntent.action = "DISMISS"
+
         val pendingDismiss = PendingIntent.getService(
             this, 1, dismissIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
