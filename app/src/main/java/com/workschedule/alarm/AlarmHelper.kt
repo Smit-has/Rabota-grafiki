@@ -121,3 +121,5 @@ object AlarmHelper {
                 scheduleAlarm(context, shift)
             }
         }
+    }
+}
