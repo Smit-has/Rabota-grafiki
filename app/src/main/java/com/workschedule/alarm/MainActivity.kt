@@ -10,18 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var shiftsContainer: LinearLayout
-    private lateinit var tvEmpty: TextView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         AlarmHelper.createNotificationChannel(this)
-
-        shiftsContainer = findViewById(R.id.shiftsContainer)
-        tvEmpty = findViewById(R.id.tvEmpty)
-
         findViewById<Button>(R.id.btnAdd).setOnClickListener {
             startActivity(Intent(this, AddShiftActivity::class.java))
         }
@@ -29,34 +21,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadShifts()
+        showShifts()
         AlarmHelper.rescheduleAll(this)
     }
 
-    private fun loadShifts() {
-        shiftsContainer.removeAllViews()
-        val shifts = ShiftStorage.getUpcomingShifts(this)
-
-        if (shifts.isEmpty()) {
-            tvEmpty.visibility = View.VISIBLE
+    private fun showShifts() {
+        val container = findViewById<LinearLayout>(R.id.shiftsContainer)
+        val empty = findViewById<TextView>(R.id.tvEmpty)
+        container.removeAllViews()
+        val list = ShiftStorage.getUpcomingShifts(this)
+        if (list.isEmpty()) {
+            empty.visibility = View.VISIBLE
             return
         }
-
-        tvEmpty.visibility = View.GONE
-
-        for (shift in shifts) {
-            val tv = TextView(this)
-            var text = shift.getFormattedDate() + "\n" + shift.getFormattedTime()
-            if (shift.alarmEnabled && !shift.isPast()) {
-                text = text + "\nBudilnik: " + shift.getAlarmTimeFormatted()
+        empty.visibility = View.GONE
+        for (s in list) {
+            val t = TextView(this)
+            t.text = s.getFormattedDate() + "\n" + s.getFormattedTime()
+            t.textSize = 16f
+            t.setPadding(20, 20, 20, 20)
+            t.setBackgroundColor(0xFFE3F2FD.toInt())
+            val p = LinearLayout.LayoutParams(-1, -2)
+            p.bottomMargin = 12
+            t.layoutParams = p
+            t.setOnClickListener {
+                val i = Intent(this, AddShiftActivity::class.java)
+                i.putExtra("shift_id", s.id)
+                startActivity(i)
             }
-            if (shift.note.isNotEmpty()) {
-                text = text + "\n" + shift.note
-            }
-            tv.text = text
-            tv.textSize = 16f
-            tv.setPadding(24, 24, 24, 24)
-            tv.setBackgroundColor(0xFFE3F2FD.toInt())
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.
+            container.addView(t)
+        }
+    }
+}
