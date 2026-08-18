@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,132 +15,109 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/select_date"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
-            android:layout_marginBottom="4dp" />
+            android:text="Дата"
+            android:textColor="#757575"
+            android:textSize="14sp" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/btnSelectDate"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Выберите дату"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/shift_time"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
-            android:layout_marginBottom="4dp" />
+            android:text="Время смены"
+            android:textColor="#757575"
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/btnStartTime"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="09:00"
-                android:layout_marginEnd="8dp" />
+                android:text="09:00" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="—"
+                android:text=" - "
                 android:textSize="18sp"
+                android:textColor="#212121"
                 android:layout_gravity="center_vertical" />
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/btnEndTime"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="18:00"
-                android:layout_marginStart="8dp" />
+                android:text="18:00" />
         </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/alarm_before"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
-            android:layout_marginBottom="4dp" />
+            android:text="Будильник за (минут)"
+            android:textColor="#757575"
+            android:textSize="14sp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <EditText
+            android:id="@+id/etMinutesBefore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etMinutesBefore"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:hint="@string/minutes_before_hint"
-                android:text="30" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:inputType="number"
+            android:text="30"
+            android:textColor="#212121"
+            android:layout_marginBottom="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/note"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
-            android:layout_marginBottom="4dp" />
+            android:text="Заметка"
+            android:textColor="#757575"
+            android:textSize="14sp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <EditText
+            android:id="@+id/etNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:inputType="text"
+            android:hint="Например: утренняя смена"
+            android:textColor="#212121"
+            android:textColorHint="#9E9E9E"
+            android:layout_marginBottom="12dp" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etNote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="2"
-                android:hint="Например: утренняя смена" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchAlarm"
+        <CheckBox
+            android:id="@+id/cbAlarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Включить будильник"
+            android:textColor="#212121"
             android:checked="true"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="20dp" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="@string/save"
-            android:textSize="16sp"
-            app:cornerRadius="8dp" />
+            android:text="Сохранить"
+            android:textSize="16sp" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/btnDelete"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="@string/delete"
-            android:textColor="@android:color/holo_red_dark"
+            android:text="Удалить"
             android:layout_marginTop="8dp"
-            android:visibility="gone"
-            app:cornerRadius="8dp"
-            app:strokeColor="@android:color/holo_red_dark" />
+            android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>
