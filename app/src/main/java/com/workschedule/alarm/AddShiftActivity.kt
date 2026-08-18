@@ -4,31 +4,44 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.workschedule.alarm.databinding.ActivityAddShiftBinding
 import java.util.Calendar
+import java.util.UUID
 
 class AddShiftActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityAddShiftBinding
-
-    private var year: Int = 0
-    private var month: Int = 0
-    private var day: Int = 0
+    private var year = 0
+    private var month = 0
+    private var day = 0
     private var startHour = 9
     private var startMinute = 0
     private var endHour = 18
     private var endMinute = 0
     private var editingId: String? = null
 
+    private lateinit var btnSelectDate: Button
+    private lateinit var btnStartTime: Button
+    private lateinit var btnEndTime: Button
+    private lateinit var etMinutesBefore: EditText
+    private lateinit var etNote: EditText
+    private lateinit var cbAlarm: CheckBox
+    private lateinit var btnDelete: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddShiftBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_add_shift)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.add_shift)
+        btnSelectDate = findViewById(R.id.btnSelectDate)
+        btnStartTime = findViewById(R.id.btnStartTime)
+        btnEndTime = findViewById(R.id.btnEndTime)
+        etMinutesBefore = findViewById(R.id.etMinutesBefore)
+        etNote = findViewById(R.id.etNote)
+        cbAlarm = findViewById(R.id.cbAlarm)
+        btnDelete = findViewById(R.id.btnDelete)
 
         val now = Calendar.getInstance()
         year = intent.getIntExtra("prefill_year", now.get(Calendar.YEAR))
@@ -37,8 +50,7 @@ class AddShiftActivity : AppCompatActivity() {
 
         editingId = intent.getStringExtra("shift_id")
         if (editingId != null) {
-            val shifts = ShiftStorage.loadShifts(this)
-            val shift = shifts.find { it.id == editingId }
+            val shift = ShiftStorage.loadShifts(this).find { it.id == editingId }
             if (shift != null) {
                 year = shift.year
                 month = shift.month
@@ -47,61 +59,49 @@ class AddShiftActivity : AppCompatActivity() {
                 startMinute = shift.startMinute
                 endHour = shift.endHour
                 endMinute = shift.endMinute
-                binding.etMinutesBefore.setText(shift.minutesBefore.toString())
-                binding.etNote.setText(shift.note)
-                binding.switchAlarm.isChecked = shift.alarmEnabled
-                binding.btnDelete.visibility = View.VISIBLE
-                supportActionBar?.title = "Редактировать смену"
+                etMinutesBefore.setText(shift.minutesBefore.toString())
+                etNote.setText(shift.note)
+                cbAlarm.isChecked = shift.alarmEnabled
+                btnDelete.visibility = View.VISIBLE
             }
         }
 
         updateDateButton()
         updateTimeButtons()
 
-        binding.btnSelectDate.setOnClickListener {
-            DatePickerDialog(
-                this,
-                { _, y, m, d ->
-                    year = y
-                    month = m
-                    day = d
-                    updateDateButton()
-                },
-                year, month, day
-            ).show()
+        btnSelectDate.setOnClickListener {
+            DatePickerDialog(this, { _, y, m, d ->
+                year = y
+                month = m
+                day = d
+                updateDateButton()
+            }, year, month, day).show()
         }
 
-        binding.btnStartTime.setOnClickListener {
-            TimePickerDialog(
-                this,
-                { _, h, m ->
-                    startHour = h
-                    startMinute = m
-                    updateTimeButtons()
-                },
-                startHour, startMinute, true
-            ).show()
+        btnStartTime.setOnClickListener {
+            TimePickerDialog(this, { _, h, m ->
+                startHour = h
+                startMinute = m
+                updateTimeButtons()
+            }, startHour, startMinute, true).show()
         }
 
-        binding.btnEndTime.setOnClickListener {
-            TimePickerDialog(
-                this,
-                { _, h, m ->
-                    endHour = h
-                    endMinute = m
-                    updateTimeButtons()
-                },
-                endHour, endMinute, true
-            ).show()
+        btnEndTime.setOnClickListener {
+            TimePickerDialog(this, { _, h, m ->
+                endHour = h
+                endMinute = m
+                updateTimeButtons()
+            }, endHour, endMinute, true).show()
         }
 
-        binding.btnSave.setOnClickListener { saveShift() }
+        findViewById<Button>(R.id.btnSave).setOnClickListener { saveShift() }
 
-        binding.btnDelete.setOnClickListener {
-            editingId?.let { id ->
+        btnDelete.setOnClickListener {
+            val id = editingId
+            if (id != null) {
                 AlarmHelper.cancelAlarm(this, id)
                 ShiftStorage.delete(this, id)
-                Toast.makeText(this, "Смена удалена", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Smena udalena", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
@@ -109,24 +109,26 @@ class AddShiftActivity : AppCompatActivity() {
 
     private fun updateDateButton() {
         val months = arrayOf(
-            "января", "февраля", "марта", "апреля", "мая", "июня",
-            "июля", "августа", "сентября", "октября", "ноября", "декабря"
+            "yanvarya", "fevralya", "marta", "aprelya", "maya", "iyunya",
+            "iyulya", "avgusta", "sentyabrya", "oktyabrya", "noyabrya", "dekabrya"
         )
-        binding.btnSelectDate.text = "$day ${months[month]} $year"
+        btnSelectDate.text = day.toString() + " " + months[month] + " " + year
     }
 
     private fun updateTimeButtons() {
-        binding.btnStartTime.text = String.format("%02d:%02d", startHour, startMinute)
-        binding.btnEndTime.text = String.format("%02d:%02d", endHour, endMinute)
+        btnStartTime.text = String.format("%02d:%02d", startHour, startMinute)
+        btnEndTime.text = String.format("%02d:%02d", endHour, endMinute)
     }
 
     private fun saveShift() {
-        val minutesBefore = binding.etMinutesBefore.text.toString().toIntOrNull() ?: 30
-        val note = binding.etNote.text.toString().trim()
-        val alarmEnabled = binding.switchAlarm.isChecked
+        val minutesBefore = etMinutesBefore.text.toString().toIntOrNull() ?: 30
+        val note = etNote.text.toString().trim()
+        val alarmEnabled = cbAlarm.isChecked
+
+        val id = if (editingId != null) editingId!! else UUID.randomUUID().toString()
 
         val shift = Shift(
-            id = editingId ?: java.util.UUID.randomUUID().toString(),
+            id = id,
             year = year,
             month = month,
             day = day,
@@ -145,19 +147,14 @@ class AddShiftActivity : AppCompatActivity() {
             AlarmHelper.scheduleAlarm(this, shift)
             Toast.makeText(
                 this,
-                "Смена сохранена. Будильник в ${shift.getAlarmTimeFormatted()}",
+                "Sohraneno. Budilnik: " + shift.getAlarmTimeFormatted(),
                 Toast.LENGTH_LONG
             ).show()
         } else {
             AlarmHelper.cancelAlarm(this, shift.id)
-            Toast.makeText(this, "Смена сохранена", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Sohraneno", Toast.LENGTH_SHORT).show()
         }
 
         finish()
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        finish()
-        return true
     }
 }
