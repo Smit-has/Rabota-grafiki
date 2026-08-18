@@ -78,12 +78,13 @@ class MainActivity : AppCompatActivity() {
             .toSet()
 
         val today = Calendar.getInstance()
+        val cellH = (72 * resources.displayMetrics.density).toInt()
 
         for (i in 0 until offset) {
             val empty = TextView(this)
             empty.layoutParams = GridLayout.LayoutParams().apply {
                 width = 0
-                height = 48
+                height = cellH
                 columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
             }
             grid.addView(empty)
@@ -93,13 +94,13 @@ class MainActivity : AppCompatActivity() {
             val tv = TextView(this)
             tv.text = day.toString()
             tv.gravity = Gravity.CENTER
-            tv.textSize = 14f
+            tv.textSize = 17f
             tv.setTextColor(Color.parseColor("#212121"))
             tv.layoutParams = GridLayout.LayoutParams().apply {
                 width = 0
-                height = 48
+                height = cellH
                 columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                setMargins(2, 2, 2, 2)
+                setMargins(3, 3, 3, 3)
             }
 
             val isToday = year == today.get(Calendar.YEAR) &&
