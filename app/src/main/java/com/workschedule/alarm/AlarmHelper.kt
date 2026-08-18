@@ -1,34 +1,52 @@
 package com.workschedule.alarm
 
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 
 object AlarmHelper {
 
-    const val CHANNEL_ID = "work_shift_alarms"
+    const val CHANNEL_ID = "work_shift_alarms_v2"
     const val EXTRA_SHIFT_ID = "shift_id"
     const val EXTRA_SHIFT_NOTE = "shift_note"
     const val EXTRA_SHIFT_TIME = "shift_time"
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = context.getSystemService(NotificationManager::class.java)
+
+            try {
+                manager.deleteNotificationChannel("work_shift_alarms")
+            } catch (_: Exception) {
+            }
+
+            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 context.getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.notification_channel_desc)
-                enableVibration(true)
-                setBypassDnd(true)
-            }
-            val manager = context.getSystemService(NotificationManager::class.java)
+            )
+            channel.description = context.getString(R.string.notification_channel_desc)
+            channel.enableVibration(true)
+            channel.vibrationPattern = longArrayOf(0, 500, 300, 500, 300, 500)
+            channel.setSound(soundUri, audioAttributes)
+            channel.setBypassDnd(true)
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+
             manager.createNotificationChannel(channel)
         }
     }
@@ -68,11 +86,10 @@ object AlarmHelper {
         }
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra(EXTRA_SHIFT_ID, shift.id)
-            putExtra(EXTRA_SHIFT_NOTE, shift.note.ifEmpty { shift.getFormattedTime() })
-            putExtra(EXTRA_SHIFT_TIME, shift.getFormattedTime())
-        }
+        val intent = Intent(context, AlarmReceiver::class.java)
+        intent.putExtra(EXTRA_SHIFT_ID, shift.id)
+        intent.putExtra(EXTRA_SHIFT_NOTE, if (shift.note.isEmpty()) shift.getFormattedTime() else shift.note)
+        intent.putExtra(EXTRA_SHIFT_TIME, shift.getFormattedTime())
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
