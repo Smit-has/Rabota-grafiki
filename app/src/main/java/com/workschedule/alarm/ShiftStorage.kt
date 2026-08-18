@@ -1,7 +1,6 @@
 package com.workschedule.alarm
 
 import android.content.Context
-import android.content.SharedPreferences
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -10,33 +9,32 @@ object ShiftStorage {
     private const val PREFS_NAME = "work_shifts"
     private const val KEY_SHIFTS = "shifts"
 
-    private fun prefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    }
-
     fun saveShifts(context: Context, shifts: List<Shift>) {
         val array = JSONArray()
         for (shift in shifts) {
-            val obj = JSONObject().apply {
-                put("id", shift.id)
-                put("year", shift.year)
-                put("month", shift.month)
-                put("day", shift.day)
-                put("startHour", shift.startHour)
-                put("startMinute", shift.startMinute)
-                put("endHour", shift.endHour)
-                put("endMinute", shift.endMinute)
-                put("minutesBefore", shift.minutesBefore)
-                put("note", shift.note)
-                put("alarmEnabled", shift.alarmEnabled)
-            }
+            val obj = JSONObject()
+            obj.put("id", shift.id)
+            obj.put("year", shift.year)
+            obj.put("month", shift.month)
+            obj.put("day", shift.day)
+            obj.put("startHour", shift.startHour)
+            obj.put("startMinute", shift.startMinute)
+            obj.put("endHour", shift.endHour)
+            obj.put("endMinute", shift.endMinute)
+            obj.put("minutesBefore", shift.minutesBefore)
+            obj.put("note", shift.note)
+            obj.put("alarmEnabled", shift.alarmEnabled)
             array.put(obj)
         }
-        prefs(context).edit().putString(KEY_SHIFTS, array.toString()).apply()
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_SHIFTS, array.toString())
+            .commit()
     }
 
     fun loadShifts(context: Context): MutableList<Shift> {
-        val json = prefs(context).getString(KEY_SHIFTS, "[]") ?: "[]"
+        val json = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_SHIFTS, "[]") ?: "[]"
         val array = JSONArray(json)
         val list = mutableListOf<Shift>()
         for (i in 0 until array.length()) {
@@ -77,16 +75,10 @@ object ShiftStorage {
         saveShifts(context, shifts)
     }
 
-    fun getShiftsForDay(context: Context, year: Int, month: Int, day: Int): List<Shift> {
-        return loadShifts(context).filter {
-            it.year == year && it.month == month && it.day == day
-        }
-    }
-
-    fun getUpcomingShifts(context: Context, limit: Int = 20): List<Shift> {
-        val now = System.currentTimeMillis()
+    fun getUpcomingShifts(context: Context, limit: Int = 30): List<Shift> {
+        val now = System.currentTimeMillis() - 12L * 60 * 60 * 1000
         return loadShifts(context)
-            .filter { it.getStartCalendar().timeInMillis >= now - 12 * 60 * 60 * 1000 }
+            .filter { it.getStartCalendar().timeInMillis >= now }
             .take(limit)
     }
 }
