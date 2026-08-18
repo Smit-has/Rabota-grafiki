@@ -18,6 +18,7 @@ class AlarmService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == "DISMISS") {
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
         }
@@ -27,7 +28,6 @@ class AlarmService : Service() {
 
         val openApp = Intent(this, MainActivity::class.java)
         openApp.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-
         val pendingOpen = PendingIntent.getActivity(
             this, 0, openApp,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -35,64 +35,52 @@ class AlarmService : Service() {
 
         val dismissIntent = Intent(this, AlarmService::class.java)
         dismissIntent.action = "DISMISS"
-
         val pendingDismiss = PendingIntent.getService(
             this, 1, dismissIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val text = "Smena: " + time + if (note.isNotEmpty()) "\n" + note else ""
+
         val notification: Notification = NotificationCompat.Builder(this, AlarmHelper.CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle(getString(R.string.alarm_title))
-            .setContentText(
-                getString(R.string.alarm_text, time) +
-                        if (note.isNotEmpty()) "\n$note" else ""
-            )
+            .setContentTitle("Pora na rabotu!")
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setAutoCancel(true)
             .setOngoing(true)
             .setContentIntent(pendingOpen)
-            .addAction(
-                android.R.drawable.ic_menu_close_clear_cancel,
-                "Выключить",
-                pendingDismiss
-            )
+            .addAction(0, "Vykluchit", pendingDismiss)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
             .setVibrate(longArrayOf(0, 500, 300, 500, 300, 500))
             .build()
 
-        startForeground(1001, notification)
+        try {
+            startForeground(1001, notification)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         vibrate()
-
         return START_NOT_STICKY
     }
 
     private fun vibrate() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = getSystemService(VibratorManager::class.java)
-                val vibrator = vibratorManager.defaultVibrator
-                vibrator.vibrate(
-                    VibrationEffect.createWaveform(
-                        longArrayOf(0, 500, 300, 500, 300, 500, 300, 800),
-                        -1
-                    )
+                val vm = getSystemService(VibratorManager::class.java)
+                vm.defaultVibrator.vibrate(
+                    VibrationEffect.createWaveform(longArrayOf(0, 500, 300, 500, 300, 500), -1)
                 )
             } else {
-                @Suppress("DEPRECATION")
-                val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+                val v = getSystemService(VIBRATOR_SERVICE) as Vibrator
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(
-                        VibrationEffect.createWaveform(
-                            longArrayOf(0, 500, 300, 500, 300, 500, 300, 800),
-                            -1
-                        )
-                    )
+                    v.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 500, 300, 500, 300, 500), -1))
                 } else {
                     @Suppress("DEPRECATION")
-                    vibrator.vibrate(longArrayOf(0, 500, 300, 500, 300, 500, 300, 800), -1)
+                    v.vibrate(longArrayOf(0, 500, 300, 500, 300, 500), -1)
                 }
             }
         } catch (_: Exception) {
